@@ -14,7 +14,7 @@
     </header>
 
     <main class="main">
-      <!-- アップロードエリア -->
+      <!-- Upload area -->
       <section class="section">
         <div class="drop-zone" id="dropZone" role="button" tabindex="0" aria-label="画像をドロップするかクリックして選択">
           <div class="drop-zone__icon">🖼️</div>
@@ -26,11 +26,11 @@
         <p class="loading-msg" id="loadingMsg" hidden>⏳ WASM を読み込み中...</p>
       </section>
 
-      <!-- 設定パネル -->
+      <!-- Settings panel -->
       <section class="section" id="settingsSection" hidden>
         <h2 class="section__title">変換設定</h2>
         <div class="settings-grid">
-          <!-- フォーマット -->
+          <!-- Format -->
           <div class="field">
             <label class="field__label" for="format">出力フォーマット</label>
             <select class="field__select" id="format">
@@ -40,7 +40,7 @@
             </select>
           </div>
 
-          <!-- クオリティ -->
+          <!-- Quality -->
           <div class="field" id="qualityField">
             <label class="field__label" for="quality">
               クオリティ: <strong id="qualityValue">85</strong>
@@ -48,19 +48,19 @@
             <input class="field__range" type="range" id="quality" min="1" max="100" value="85" />
           </div>
 
-          <!-- 幅 -->
+          <!-- Width -->
           <div class="field">
             <label class="field__label" for="targetWidth">幅 (px)</label>
             <input class="field__number" type="number" id="targetWidth" min="1" placeholder="元のサイズ" />
           </div>
 
-          <!-- 高さ -->
+          <!-- Height -->
           <div class="field">
             <label class="field__label" for="targetHeight">高さ (px)</label>
             <input class="field__number" type="number" id="targetHeight" min="1" placeholder="元のサイズ" />
           </div>
 
-          <!-- アスペクト比 -->
+          <!-- Aspect ratio -->
           <div class="field field--checkbox">
             <label class="field__checkbox-label">
               <input type="checkbox" id="keepAspect" checked />
@@ -68,14 +68,14 @@
             </label>
           </div>
 
-          <!-- 変換ボタン -->
+          <!-- Convert button -->
           <div class="field field--action">
             <button class="btn btn--primary" id="processBtn">変換する</button>
           </div>
         </div>
       </section>
 
-      <!-- 結果表示 -->
+      <!-- Results -->
       <section class="section" id="resultsSection" hidden>
         <h2 class="section__title">変換結果</h2>
         <div class="preview-grid">

@@ -1,12 +1,12 @@
 import init, { process_image } from './pkg/czimg.js'
 
-// ===== 状態管理 =====
+// ===== State =====
 let wasmReady = false
 let currentFile: File | null = null
 let convertedObjectUrl: string | null = null
 let originalObjectUrl: string | null = null
 
-// ===== DOM 要素取得 =====
+// ===== DOM refs =====
 const dropZone = document.getElementById('dropZone') as HTMLDivElement
 const fileInput = document.getElementById('fileInput') as HTMLInputElement
 const loadingMsg = document.getElementById('loadingMsg') as HTMLParagraphElement
@@ -30,7 +30,7 @@ const statsEl = document.getElementById('stats') as HTMLDivElement
 const downloadBtn = document.getElementById('downloadBtn') as HTMLAnchorElement
 const resetBtn = document.getElementById('resetBtn') as HTMLButtonElement
 
-// ===== WASM 初期化 =====
+// ===== WASM initialisation =====
 async function main() {
   loadingMsg.hidden = false
   try {
@@ -42,9 +42,9 @@ async function main() {
   setupUI()
 }
 
-// ===== UI セットアップ =====
+// ===== UI setup =====
 function setupUI() {
-  // ドラッグ & ドロップ
+  // Drag-and-drop
   dropZone.addEventListener('dragover', (e) => {
     e.preventDefault()
     dropZone.classList.add('is-dragging')
@@ -57,28 +57,25 @@ function setupUI() {
     if (file && file.type.startsWith('image/')) handleFile(file)
   })
 
-  // キーボード操作
+  // Keyboard access for the drop zone
   dropZone.addEventListener('keydown', (e) => {
     if (e.key === 'Enter' || e.key === ' ') fileInput.click()
   })
 
-  // ファイル選択
+  // File picker
   fileInput.addEventListener('change', () => {
     if (fileInput.files?.[0]) handleFile(fileInput.files[0])
   })
 
-  // クオリティスライダー
+  // Quality slider live preview
   qualityInput.addEventListener('input', () => {
     qualityValue.textContent = qualityInput.value
   })
 
-  // フォーマット変更時の表示切替
+  // Hide quality control when PNG is selected (lossless, no quality param)
   formatSelect.addEventListener('change', updateQualityVisibility)
 
-  // 変換ボタン
   processBtn.addEventListener('click', processImage)
-
-  // リセットボタン
   resetBtn.addEventListener('click', resetUI)
 }
 
@@ -86,18 +83,18 @@ function updateQualityVisibility() {
   qualityField.style.display = formatSelect.value === 'png' ? 'none' : ''
 }
 
-// ===== ファイル読み込み =====
+// ===== File loading =====
 async function handleFile(file: File) {
   currentFile = file
 
-  // 前回の URL を解放
+  // Release previous object URLs to avoid memory leaks
   if (originalObjectUrl) URL.revokeObjectURL(originalObjectUrl)
   if (convertedObjectUrl) URL.revokeObjectURL(convertedObjectUrl)
 
   originalObjectUrl = URL.createObjectURL(file)
   originalPreview.src = originalObjectUrl
 
-  // 元画像のサイズ取得（width/height）
+  // Wait for the image to load so we can read its natural dimensions
   await new Promise<void>((resolve) => {
     originalPreview.onload = () => resolve()
   })
@@ -109,7 +106,7 @@ async function handleFile(file: File) {
   resultsSection.hidden = true
 }
 
-// ===== 画像変換 =====
+// ===== Image conversion =====
 async function processImage() {
   if (!currentFile || !wasmReady) return
 
@@ -129,7 +126,8 @@ async function processImage() {
     let mimeType: string
 
     if (format === 'webp') {
-      // WebP: Rust で PNG としてリサイズ → JS の canvas で WebP に変換
+      // WebP path: Rust resizes and returns PNG bytes, then the Canvas API
+      // encodes to WebP (browser-native, no C bindings required)
       const pngBytes = process_image(inputBytes, targetWidth, targetHeight, keepAspect, 'png', 100)
       resultBlob = await encodeWebP(pngBytes, quality)
       mimeType = 'image/webp'
@@ -139,18 +137,18 @@ async function processImage() {
       resultBlob = new Blob([resultBytes], { type: mimeType })
     }
 
-    // 前回の変換結果 URL を解放
+    // Release the previous converted URL before creating a new one
     if (convertedObjectUrl) URL.revokeObjectURL(convertedObjectUrl)
     convertedObjectUrl = URL.createObjectURL(resultBlob)
 
-    // プレビュー更新
+    // Update the converted preview
     convertedPreview.src = convertedObjectUrl
     await new Promise<void>((resolve) => { convertedPreview.onload = () => resolve() })
 
     convertedMeta.textContent =
       `${convertedPreview.naturalWidth} × ${convertedPreview.naturalHeight} px  |  ${formatSize(resultBlob.size)}`
 
-    // 圧縮率
+    // Compression ratio display
     const diff = currentFile.size - resultBlob.size
     const ratio = Math.abs(diff / currentFile.size * 100).toFixed(1)
     if (diff > 0) {
@@ -161,7 +159,7 @@ async function processImage() {
       statsEl.textContent = `変化なし（${formatSize(resultBlob.size)}）`
     }
 
-    // ダウンロードリンク
+    // Set download link
     const ext = format === 'jpeg' ? 'jpg' : format
     const baseName = currentFile.name.replace(/\.[^.]+$/, '')
     downloadBtn.href = convertedObjectUrl
@@ -170,14 +168,14 @@ async function processImage() {
     resultsSection.hidden = false
     resultsSection.scrollIntoView({ behavior: 'smooth', block: 'nearest' })
   } catch (err) {
-    alert(`変換エラー: ${err}`)
+    alert(`Conversion error: ${err}`)
   } finally {
     processBtn.disabled = false
     processBtn.textContent = '変換する'
   }
 }
 
-// ===== WebP エンコード（Canvas 経由）=====
+// ===== WebP encoding via Canvas API =====
 function encodeWebP(pngBytes: Uint8Array, quality: number): Promise<Blob> {
   return new Promise((resolve, reject) => {
     const img = new Image()
@@ -197,7 +195,7 @@ function encodeWebP(pngBytes: Uint8Array, quality: number): Promise<Blob> {
           if (blob) {
             resolve(blob)
           } else {
-            reject(new Error('このブラウザは WebP エンコードをサポートしていません'))
+            reject(new Error('WebP encoding is not supported in this browser'))
           }
         },
         'image/webp',
@@ -207,14 +205,14 @@ function encodeWebP(pngBytes: Uint8Array, quality: number): Promise<Blob> {
 
     img.onerror = () => {
       URL.revokeObjectURL(pngUrl)
-      reject(new Error('画像の読み込みに失敗しました'))
+      reject(new Error('Failed to load image for WebP conversion'))
     }
 
     img.src = pngUrl
   })
 }
 
-// ===== UI リセット =====
+// ===== UI reset =====
 function resetUI() {
   currentFile = null
   if (originalObjectUrl) { URL.revokeObjectURL(originalObjectUrl); originalObjectUrl = null }
@@ -231,7 +229,7 @@ function resetUI() {
   window.scrollTo({ top: 0, behavior: 'smooth' })
 }
 
-// ===== ユーティリティ =====
+// ===== Utilities =====
 function formatSize(bytes: number): string {
   if (bytes < 1024) return `${bytes} B`
   if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`

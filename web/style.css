@@ -1,4 +1,4 @@
-/* ===== リセット & ベース ===== */
+/* ===== Reset & base ===== */
 *, *::before, *::after {
   box-sizing: border-box;
   margin: 0;
@@ -39,7 +39,7 @@ body {
   flex-direction: column;
 }
 
-/* ===== レイアウト ===== */
+/* ===== Layout ===== */
 .app {
   display: flex;
   flex-direction: column;
@@ -57,7 +57,7 @@ body {
   padding: 1.5rem 0 2rem;
 }
 
-/* ===== ヘッダー ===== */
+/* ===== Header ===== */
 .header {
   padding: 2rem 0 1rem;
   text-align: center;
@@ -79,7 +79,7 @@ body {
   font-size: 0.95rem;
 }
 
-/* ===== セクション ===== */
+/* ===== Section ===== */
 .section {
   background: var(--color-surface);
   border: 1px solid var(--color-border);
@@ -96,7 +96,7 @@ body {
   margin-bottom: 1.2rem;
 }
 
-/* ===== ドロップゾーン ===== */
+/* ===== Drop zone ===== */
 .drop-zone {
   border: 2px dashed var(--color-border);
   border-radius: var(--radius);
@@ -157,7 +157,7 @@ body {
   height: 100%;
 }
 
-/* ===== ローディングメッセージ ===== */
+/* ===== Loading message ===== */
 .loading-msg {
   text-align: center;
   padding: 0.8rem;
@@ -165,7 +165,7 @@ body {
   font-size: 0.9rem;
 }
 
-/* ===== 設定グリッド ===== */
+/* ===== Settings grid ===== */
 .settings-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
@@ -220,7 +220,7 @@ body {
   background: var(--color-surface-2);
 }
 
-/* クオリティスライダー */
+/* Quality range slider */
 .field__range {
   -webkit-appearance: none;
   appearance: none;
@@ -247,7 +247,7 @@ body {
   background: var(--color-accent-hover);
 }
 
-/* チェックボックス */
+/* Checkbox */
 .field__checkbox-label {
   display: flex;
   align-items: center;
@@ -264,7 +264,7 @@ body {
   cursor: pointer;
 }
 
-/* ===== ボタン ===== */
+/* ===== Buttons ===== */
 .btn {
   display: inline-flex;
   align-items: center;
@@ -320,7 +320,7 @@ body {
   border-color: var(--color-border-hover);
 }
 
-/* ===== プレビューグリッド ===== */
+/* ===== Preview grid ===== */
 .preview-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -374,7 +374,7 @@ body {
   text-align: center;
 }
 
-/* ===== 統計 ===== */
+/* ===== Stats ===== */
 .stats {
   margin-top: 1rem;
   padding: 0.75rem 1rem;
@@ -394,7 +394,7 @@ body {
   font-weight: 700;
 }
 
-/* ===== アクション ===== */
+/* ===== Actions ===== */
 .actions {
   display: flex;
   gap: 0.75rem;
@@ -402,7 +402,7 @@ body {
   flex-wrap: wrap;
 }
 
-/* ===== フッター ===== */
+/* ===== Footer ===== */
 .footer {
   padding: 1.5rem 0;
   text-align: center;

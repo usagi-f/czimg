@@ -7,18 +7,19 @@ pub fn init() {
     console_error_panic_hook::set_once();
 }
 
-/// 画像を処理する（デコード → リサイズ → エンコード）
+/// Process an image: decode → optional resize → encode.
 ///
-/// # 引数
-/// - `input_bytes`: 入力画像のバイト列（PNG/JPEG/WebP 等）
-/// - `target_width`: 出力幅（0 = 変更なし）
-/// - `target_height`: 出力高さ（0 = 変更なし）
-/// - `keep_aspect_ratio`: アスペクト比を維持するか
-/// - `format`: 出力フォーマット ("png" | "jpeg")
-/// - `quality`: JPEG クオリティ（1〜100）
+/// # Arguments
+/// - `input_bytes`: raw bytes of the input image (PNG, JPEG, WebP, GIF, BMP, …)
+/// - `target_width`: output width in pixels; 0 = keep original
+/// - `target_height`: output height in pixels; 0 = keep original
+/// - `keep_aspect_ratio`: when true, fit within the target dimensions while
+///   preserving the original aspect ratio
+/// - `format`: output format — `"png"` or `"jpeg"` (anything else falls back to PNG)
+/// - `quality`: JPEG encode quality 1–100 (ignored for PNG)
 ///
-/// # 戻り値
-/// エンコード済みバイト列（JS 側では `Uint8Array` として受け取る）
+/// # Returns
+/// Encoded image bytes.  wasm-bindgen exposes this as `Uint8Array` on the JS side.
 #[wasm_bindgen]
 pub fn process_image(
     input_bytes: &[u8],
@@ -29,7 +30,7 @@ pub fn process_image(
     quality: u8,
 ) -> Result<Vec<u8>, JsValue> {
     let img = image::load_from_memory(input_bytes)
-        .map_err(|e| JsValue::from_str(&format!("デコードエラー: {e}")))?;
+        .map_err(|e| JsValue::from_str(&format!("decode error: {e}")))?;
 
     let img = if target_width > 0 || target_height > 0 {
         resize_image(img, target_width, target_height, keep_aspect_ratio)
@@ -46,13 +47,13 @@ pub fn process_image(
             let encoder =
                 image::codecs::jpeg::JpegEncoder::new_with_quality(&mut cursor, quality);
             img.write_with_encoder(encoder)
-                .map_err(|e| JsValue::from_str(&format!("JPEG エンコードエラー: {e}")))?;
+                .map_err(|e| JsValue::from_str(&format!("JPEG encode error: {e}")))?;
         }
         _ => {
-            // "png" またはそれ以外はすべて PNG として出力
+            // "png" and any unrecognised format are written as PNG
             let mut cursor = Cursor::new(&mut output);
             img.write_to(&mut cursor, ImageFormat::Png)
-                .map_err(|e| JsValue::from_str(&format!("PNG エンコードエラー: {e}")))?;
+                .map_err(|e| JsValue::from_str(&format!("PNG encode error: {e}")))?;
         }
     }
 
@@ -76,7 +77,9 @@ fn resize_image(
     img.resize_exact(new_w, new_h, image::imageops::FilterType::Lanczos3)
 }
 
-/// アスペクト比を維持しつつ target に収まるサイズを計算する
+/// Compute output dimensions that fit within `(target_w, target_h)` while
+/// preserving the original aspect ratio.  A value of 0 for either target
+/// dimension means "unconstrained on that axis".
 fn fit_dimensions(orig_w: u32, orig_h: u32, target_w: u32, target_h: u32) -> (u32, u32) {
     match (target_w, target_h) {
         (0, 0) => (orig_w, orig_h),
@@ -89,6 +92,7 @@ fn fit_dimensions(orig_w: u32, orig_h: u32, target_w: u32, target_h: u32) -> (u3
             (w.max(1), h)
         }
         (w, h) => {
+            // Scale by the smaller ratio so the image fits within both dimensions
             let ratio = (w as f64 / orig_w as f64).min(h as f64 / orig_h as f64);
             let nw = (orig_w as f64 * ratio).round() as u32;
             let nh = (orig_h as f64 * ratio).round() as u32;

@@ -1,76 +1,77 @@
-# czimg — ブラウザ画像圧縮・変換ツール
+# czimg — Browser Image Compressor & Converter
 
-ブラウザ上で完結する画像圧縮・変換ツール。
-Rust + WebAssembly で構築されており、画像はサーバーに送信されません。
+A client-side image compression and conversion tool built with Rust + WebAssembly.
+All processing runs in the browser — no image data is ever sent to a server.
 
-## 機能
+## Features
 
-- **フォーマット変換** — PNG / JPEG / WebP への変換
-- **品質調整** — JPEG・WebP の品質を 1〜100 で指定
-- **リサイズ** — 幅・高さ指定（アスペクト比維持オプション付き）
-- **プレビュー** — 変換前後の画像をブラウザ上で確認
-- **サイズ比較** — 変換前後のファイルサイズと圧縮率を表示
-- **ダウンロード** — 変換後の画像をダウンロード
+- **Format conversion** — convert to PNG, JPEG, or WebP
+- **Quality control** — set JPEG / WebP quality from 1 to 100
+- **Resize** — specify width and/or height, with optional aspect-ratio lock
+- **Before / after preview** — compare the original and converted images side by side
+- **Size comparison** — shows file sizes and the compression percentage
+- **Download** — save the converted image locally
 
-## 技術スタック
+## Tech stack
 
-| レイヤー | 技術 |
-|---------|------|
-| 画像処理 | Rust + WebAssembly（`image` クレート） |
-| ビルドツール | wasm-pack |
-| フロントエンド | TypeScript + Vite |
-| WebP 変換 | Canvas API（ブラウザネイティブ） |
-| デプロイ | GitHub Pages / Cloudflare Pages |
+| Layer | Technology |
+|-------|------------|
+| Image processing | Rust + WebAssembly (`image` crate) |
+| Build toolchain | wasm-pack |
+| Frontend | TypeScript + Vite |
+| WebP encoding | Canvas API (browser-native) |
+| Deployment | GitHub Pages / Cloudflare Pages |
 
-## セットアップ
+> **Why Canvas for WebP?**
+> The `image` crate's WebP encoder wraps `libwebp-sys` (C bindings) which does not
+> compile to `wasm32-unknown-unknown`.  Instead, the Rust side resizes the image and
+> returns PNG bytes; the JS side draws those onto a `<canvas>` and calls
+> `canvas.toBlob('image/webp', quality)`.
 
-### 必要なもの
+## Prerequisites
 
-- Rust（stable）
-- wasm-pack
+- Rust (stable toolchain)
+- [wasm-pack](https://rustwasm.github.io/wasm-pack/)
 - Node.js 18+
 
 ```bash
-# wasm32 ターゲットの追加
 rustup target add wasm32-unknown-unknown
-
-# wasm-pack のインストール
 cargo install wasm-pack
 ```
 
-### 開発サーバーの起動
+## Development
 
 ```bash
-# WASM ビルド + 開発サーバー起動
+# Build WASM + start the Vite dev server
 npm run dev
 ```
 
-### プロダクションビルド
+## Production build
 
 ```bash
 npm run build
-# 出力先: web/dist/
+# Output: web/dist/
 ```
 
-## プロジェクト構成
+## Project layout
 
 ```
 czimg/
-├── Cargo.toml          # Rust クレート設定
+├── Cargo.toml               # Rust crate config
 ├── src/
-│   └── lib.rs          # WASM 公開 API（デコード・リサイズ・エンコード）
+│   └── lib.rs               # WASM public API (decode · resize · encode)
 ├── web/
-│   ├── index.html      # UI
-│   ├── style.css       # スタイル
-│   ├── main.ts         # TypeScript ロジック
-│   ├── vite.config.ts  # Vite 設定
-│   └── pkg/            # wasm-pack ビルド出力（gitignore）
+│   ├── index.html           # UI markup
+│   ├── style.css            # Styles
+│   ├── main.ts              # TypeScript logic
+│   ├── vite.config.ts       # Vite config
+│   └── pkg/                 # wasm-pack output (gitignored)
 ├── .github/
 │   └── workflows/
-│       └── deploy.yml  # GitHub Pages 自動デプロイ
-└── package.json        # ルートビルドスクリプト
+│       └── deploy.yml       # GitHub Pages auto-deploy
+└── package.json             # Root build scripts
 ```
 
-## ライセンス
+## License
 
 MIT
