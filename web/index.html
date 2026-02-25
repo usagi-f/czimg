@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>czimg — 画像圧縮・変換ツール</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div class="app">
+    <header class="header">
+      <h1 class="header__title">czimg</h1>
+      <p class="header__subtitle">ブラウザ完結の画像圧縮・変換ツール（WebAssembly 駆動）</p>
+    </header>
+
+    <main class="main">
+      <!-- アップロードエリア -->
+      <section class="section">
+        <div class="drop-zone" id="dropZone" role="button" tabindex="0" aria-label="画像をドロップするかクリックして選択">
+          <div class="drop-zone__icon">🖼️</div>
+          <p class="drop-zone__text">画像をドラッグ＆ドロップ</p>
+          <p class="drop-zone__hint">または<span class="drop-zone__link">クリックして選択</span></p>
+          <p class="drop-zone__formats">PNG / JPEG / WebP / GIF / BMP 対応</p>
+          <input type="file" id="fileInput" accept="image/*" class="drop-zone__input" aria-hidden="true" />
+        </div>
+        <p class="loading-msg" id="loadingMsg" hidden>⏳ WASM を読み込み中...</p>
+      </section>
+
+      <!-- 設定パネル -->
+      <section class="section" id="settingsSection" hidden>
+        <h2 class="section__title">変換設定</h2>
+        <div class="settings-grid">
+          <!-- フォーマット -->
+          <div class="field">
+            <label class="field__label" for="format">出力フォーマット</label>
+            <select class="field__select" id="format">
+              <option value="jpeg">JPEG</option>
+              <option value="png">PNG</option>
+              <option value="webp">WebP</option>
+            </select>
+          </div>
+
+          <!-- クオリティ -->
+          <div class="field" id="qualityField">
+            <label class="field__label" for="quality">
+              クオリティ: <strong id="qualityValue">85</strong>
+            </label>
+            <input class="field__range" type="range" id="quality" min="1" max="100" value="85" />
+          </div>
+
+          <!-- 幅 -->
+          <div class="field">
+            <label class="field__label" for="targetWidth">幅 (px)</label>
+            <input class="field__number" type="number" id="targetWidth" min="1" placeholder="元のサイズ" />
+          </div>
+
+          <!-- 高さ -->
+          <div class="field">
+            <label class="field__label" for="targetHeight">高さ (px)</label>
+            <input class="field__number" type="number" id="targetHeight" min="1" placeholder="元のサイズ" />
+          </div>
+
+          <!-- アスペクト比 -->
+          <div class="field field--checkbox">
+            <label class="field__checkbox-label">
+              <input type="checkbox" id="keepAspect" checked />
+              <span>アスペクト比を維持</span>
+            </label>
+          </div>
+
+          <!-- 変換ボタン -->
+          <div class="field field--action">
+            <button class="btn btn--primary" id="processBtn">変換する</button>
+          </div>
+        </div>
+      </section>
+
+      <!-- 結果表示 -->
+      <section class="section" id="resultsSection" hidden>
+        <h2 class="section__title">変換結果</h2>
+        <div class="preview-grid">
+          <div class="preview-card">
+            <h3 class="preview-card__title">変換前</h3>
+            <div class="preview-card__image-wrap">
+              <img class="preview-card__image" id="originalPreview" alt="変換前" />
+            </div>
+            <p class="preview-card__meta" id="originalMeta"></p>
+          </div>
+          <div class="preview-card">
+            <h3 class="preview-card__title">変換後</h3>
+            <div class="preview-card__image-wrap">
+              <img class="preview-card__image" id="convertedPreview" alt="変換後" />
+            </div>
+            <p class="preview-card__meta" id="convertedMeta"></p>
+          </div>
+        </div>
+        <div class="stats" id="stats"></div>
+        <div class="actions">
+          <a class="btn btn--download" id="downloadBtn" download>ダウンロード</a>
+          <button class="btn btn--secondary" id="resetBtn">別の画像を使う</button>
+        </div>
+      </section>
+    </main>
+
+    <footer class="footer">
+      <p>すべての処理はブラウザ内で完結します。画像はサーバーに送信されません。</p>
+    </footer>
+  </div>
+
+  <script type="module" src="main.ts"></script>
+</body>
+</html>
