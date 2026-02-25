@@ -117,7 +117,7 @@ async function processImage() {
   const keepAspect = keepAspectCheckbox.checked
 
   processBtn.disabled = true
-  processBtn.textContent = '処理中...'
+  processBtn.textContent = 'Converting...'
 
   try {
     const inputBytes = new Uint8Array(await currentFile.arrayBuffer())
@@ -152,11 +152,11 @@ async function processImage() {
     const diff = currentFile.size - resultBlob.size
     const ratio = Math.abs(diff / currentFile.size * 100).toFixed(1)
     if (diff > 0) {
-      statsEl.innerHTML = `<span class="saved">▼ ${ratio}% 削減</span>（${formatSize(currentFile.size)} → ${formatSize(resultBlob.size)}）`
+      statsEl.innerHTML = `<span class="saved">▼ ${ratio}% smaller</span> (${formatSize(currentFile.size)} → ${formatSize(resultBlob.size)})`
     } else if (diff < 0) {
-      statsEl.innerHTML = `<span class="increased">▲ ${ratio}% 増加</span>（${formatSize(currentFile.size)} → ${formatSize(resultBlob.size)}）`
+      statsEl.innerHTML = `<span class="increased">▲ ${ratio}% larger</span> (${formatSize(currentFile.size)} → ${formatSize(resultBlob.size)})`
     } else {
-      statsEl.textContent = `変化なし（${formatSize(resultBlob.size)}）`
+      statsEl.textContent = `No change (${formatSize(resultBlob.size)})`
     }
 
     // Set download link
@@ -171,7 +171,7 @@ async function processImage() {
     alert(`Conversion error: ${err}`)
   } finally {
     processBtn.disabled = false
-    processBtn.textContent = '変換する'
+    processBtn.textContent = 'Convert'
   }
 }
 

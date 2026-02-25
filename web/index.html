@@ -1,38 +1,38 @@
 <!DOCTYPE html>
-<html lang="ja">
+<html lang="en">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>czimg — 画像圧縮・変換ツール</title>
+  <title>czimg — Image Compressor &amp; Converter</title>
   <link rel="stylesheet" href="style.css" />
 </head>
 <body>
   <div class="app">
     <header class="header">
       <h1 class="header__title">czimg</h1>
-      <p class="header__subtitle">ブラウザ完結の画像圧縮・変換ツール（WebAssembly 駆動）</p>
+      <p class="header__subtitle">Client-side image compression &amp; conversion, powered by WebAssembly</p>
     </header>
 
     <main class="main">
       <!-- Upload area -->
       <section class="section">
-        <div class="drop-zone" id="dropZone" role="button" tabindex="0" aria-label="画像をドロップするかクリックして選択">
+        <div class="drop-zone" id="dropZone" role="button" tabindex="0" aria-label="Drop an image or click to select">
           <div class="drop-zone__icon">🖼️</div>
-          <p class="drop-zone__text">画像をドラッグ＆ドロップ</p>
-          <p class="drop-zone__hint">または<span class="drop-zone__link">クリックして選択</span></p>
-          <p class="drop-zone__formats">PNG / JPEG / WebP / GIF / BMP 対応</p>
+          <p class="drop-zone__text">Drag &amp; drop an image</p>
+          <p class="drop-zone__hint">or <span class="drop-zone__link">click to browse</span></p>
+          <p class="drop-zone__formats">Supports PNG / JPEG / WebP / GIF / BMP</p>
           <input type="file" id="fileInput" accept="image/*" class="drop-zone__input" aria-hidden="true" />
         </div>
-        <p class="loading-msg" id="loadingMsg" hidden>⏳ WASM を読み込み中...</p>
+        <p class="loading-msg" id="loadingMsg" hidden>⏳ Loading WASM module...</p>
       </section>
 
       <!-- Settings panel -->
       <section class="section" id="settingsSection" hidden>
-        <h2 class="section__title">変換設定</h2>
+        <h2 class="section__title">Conversion Settings</h2>
         <div class="settings-grid">
           <!-- Format -->
           <div class="field">
-            <label class="field__label" for="format">出力フォーマット</label>
+            <label class="field__label" for="format">Output Format</label>
             <select class="field__select" id="format">
               <option value="jpeg">JPEG</option>
               <option value="png">PNG</option>
@@ -43,67 +43,67 @@
           <!-- Quality -->
           <div class="field" id="qualityField">
             <label class="field__label" for="quality">
-              クオリティ: <strong id="qualityValue">85</strong>
+              Quality: <strong id="qualityValue">85</strong>
             </label>
             <input class="field__range" type="range" id="quality" min="1" max="100" value="85" />
           </div>
 
           <!-- Width -->
           <div class="field">
-            <label class="field__label" for="targetWidth">幅 (px)</label>
-            <input class="field__number" type="number" id="targetWidth" min="1" placeholder="元のサイズ" />
+            <label class="field__label" for="targetWidth">Width (px)</label>
+            <input class="field__number" type="number" id="targetWidth" min="1" placeholder="Original" />
           </div>
 
           <!-- Height -->
           <div class="field">
-            <label class="field__label" for="targetHeight">高さ (px)</label>
-            <input class="field__number" type="number" id="targetHeight" min="1" placeholder="元のサイズ" />
+            <label class="field__label" for="targetHeight">Height (px)</label>
+            <input class="field__number" type="number" id="targetHeight" min="1" placeholder="Original" />
           </div>
 
           <!-- Aspect ratio -->
           <div class="field field--checkbox">
             <label class="field__checkbox-label">
               <input type="checkbox" id="keepAspect" checked />
-              <span>アスペクト比を維持</span>
+              <span>Keep aspect ratio</span>
             </label>
           </div>
 
           <!-- Convert button -->
           <div class="field field--action">
-            <button class="btn btn--primary" id="processBtn">変換する</button>
+            <button class="btn btn--primary" id="processBtn">Convert</button>
           </div>
         </div>
       </section>
 
       <!-- Results -->
       <section class="section" id="resultsSection" hidden>
-        <h2 class="section__title">変換結果</h2>
+        <h2 class="section__title">Result</h2>
         <div class="preview-grid">
           <div class="preview-card">
-            <h3 class="preview-card__title">変換前</h3>
+            <h3 class="preview-card__title">Before</h3>
             <div class="preview-card__image-wrap">
-              <img class="preview-card__image" id="originalPreview" alt="変換前" />
+              <img class="preview-card__image" id="originalPreview" alt="Original" />
             </div>
             <p class="preview-card__meta" id="originalMeta"></p>
           </div>
           <div class="preview-card">
-            <h3 class="preview-card__title">変換後</h3>
+            <h3 class="preview-card__title">After</h3>
             <div class="preview-card__image-wrap">
-              <img class="preview-card__image" id="convertedPreview" alt="変換後" />
+              <img class="preview-card__image" id="convertedPreview" alt="Converted" />
             </div>
             <p class="preview-card__meta" id="convertedMeta"></p>
           </div>
         </div>
         <div class="stats" id="stats"></div>
         <div class="actions">
-          <a class="btn btn--download" id="downloadBtn" download>ダウンロード</a>
-          <button class="btn btn--secondary" id="resetBtn">別の画像を使う</button>
+          <a class="btn btn--download" id="downloadBtn" download>Download</a>
+          <button class="btn btn--secondary" id="resetBtn">Use another image</button>
         </div>
       </section>
     </main>
 
     <footer class="footer">
-      <p>すべての処理はブラウザ内で完結します。画像はサーバーに送信されません。</p>
+      <p>All processing happens locally in your browser. No image data is ever sent to a server.</p>
     </footer>
   </div>
 
