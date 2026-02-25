@@ -1,0 +1,10 @@
+{
+  "name": "czimg",
+  "private": true,
+  "scripts": {
+    "build:wasm": "wasm-pack build --target web --out-dir web/pkg",
+    "build:web": "cd web && npm install && npm run build",
+    "build": "npm run build:wasm && npm run build:web",
+    "dev": "npm run build:wasm && cd web && npm install && npm run dev"
+  }
+}
